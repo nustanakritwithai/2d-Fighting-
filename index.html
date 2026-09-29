@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#07101c">
+  <title>2D Fighting — Physical Combat Prototype</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "playcanvas": "https://cdn.jsdelivr.net/npm/playcanvas@2.22.6/+esm"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="application" aria-label="PlayCanvas combat arena"></canvas>
+  <div id="fx-layer" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">PLAYCANVAS · PHYSICAL 1v1</div>
+      <h1>HUMAN <span>VS</span> MONSTER</h1>
+    </div>
+    <div class="rule-chip">NO HP · NO ATK · NO DEF</div>
+  </header>
+
+  <section class="status-grid" aria-label="Physical combat status">
+    <article class="status-card human-card">
+      <div class="card-title"><strong>HUMAN</strong><span id="human-mode">READY</span></div>
+      <div class="status-row"><span>Consciousness</span><b id="human-consciousness">Alert</b></div>
+      <div class="status-row"><span>Breathing</span><b id="human-breathing">Calm</b></div>
+      <div class="status-row"><span>Fatigue</span><b id="human-fatigue">Fresh</b></div>
+      <div class="status-row"><span>Balance</span><b id="human-balance">Stable</b></div>
+      <div class="status-row"><span>Movement</span><b id="human-movement">NORMAL</b></div>
+      <div class="status-row"><span>Combat</span><b id="human-combat">HIGH</b></div>
+      <div class="weak-line" id="human-weak">LEFT ARM · functional</div>
+    </article>
+
+    <article class="status-card monster-card">
+      <div class="card-title"><strong>MONSTER</strong><span id="monster-mode">OBSERVING</span></div>
+      <div class="status-row"><span>Consciousness</span><b id="monster-consciousness">Alert</b></div>
+      <div class="status-row"><span>Breathing</span><b id="monster-breathing">Calm</b></div>
+      <div class="status-row"><span>Fatigue</span><b id="monster-fatigue">Fresh</b></div>
+      <div class="status-row"><span>Balance</span><b id="monster-balance">Stable</b></div>
+      <div class="status-row"><span>Movement</span><b id="monster-movement">NORMAL</b></div>
+      <div class="status-row"><span>Combat</span><b id="monster-combat">HIGH</b></div>
+      <div class="weak-line" id="monster-weak">FRONT LEFT LEG · functional</div>
+    </article>
+  </section>
+
+  <aside class="combat-log" id="combat-log" aria-live="polite"></aside>
+
+  <div class="controls left-controls" aria-label="Movement controls">
+    <button type="button" data-hold="left" aria-label="Move left">◀</button>
+    <button type="button" data-hold="right" aria-label="Move right">▶</button>
+    <button type="button" data-action="dodge" class="wide">DODGE</button>
+  </div>
+
+  <div class="controls right-controls" aria-label="Combat controls">
+    <button type="button" data-hold="guard" class="guard">GUARD</button>
+    <button type="button" data-action="punch">PUNCH</button>
+    <button type="button" data-action="kick">KICK</button>
+  </div>
+
+  <div class="desktop-help">A / D MOVE · SPACE DODGE · J PUNCH · K KICK · HOLD L GUARD</div>
+
+  <div id="result" class="result-panel" role="status" aria-live="assertive">
+    <strong>MONSTER INCAPACITATED</strong>
+    <span>Physical capability collapsed.</span>
+    <button id="restart" type="button">RESTART FIGHT</button>
+  </div>
+
+  <div class="rotate-note">เล่นได้ดีที่สุดในแนวนอน</div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
