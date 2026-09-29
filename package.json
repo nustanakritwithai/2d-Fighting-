@@ -5,6 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/combat.js && node --check src/model-assets.js && node --check src/main.js"
+    "check": "node --check src/combat.js && node --check src/model-assets.js && node --check src/stage-assets.js && node --check src/main.js"
   }
 }
