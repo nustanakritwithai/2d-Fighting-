@@ -8,6 +8,7 @@ import {
   statusLabels,
   weakestPart
 } from './combat.js';
+import { createVisualHost, updateVisualMotion, assetSummary } from './model-assets.js';
 
 const canvas = document.getElementById('application');
 const app = new pc.Application(canvas, {
@@ -15,27 +16,29 @@ const app = new pc.Application(canvas, {
 });
 app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
 app.setCanvasResolution(pc.RESOLUTION_AUTO);
-app.scene.ambientLight = new pc.Color(0.72, 0.75, 0.82);
+app.scene.ambientLight = new pc.Color(0.34, 0.38, 0.46);
 app.start();
 window.addEventListener('resize', () => app.resizeCanvas());
 
 const camera = new pc.Entity('Camera');
 camera.addComponent('camera', {
-  clearColor: new pc.Color(0.025, 0.035, 0.055),
+  clearColor: new pc.Color(0.018, 0.026, 0.04),
   projection: pc.PROJECTION_ORTHOGRAPHIC,
-  orthoHeight: 5.1
+  orthoHeight: 5.3
 });
-camera.setPosition(0, 1.2, 12);
+camera.setPosition(0, 0.58, 12);
 app.root.addChild(camera);
 
 const light = new pc.Entity('Key Light');
 light.addComponent('light', {
   type: 'directional',
   color: new pc.Color(1, 0.94, 0.86),
-  intensity: 1.6,
-  castShadows: false
+  intensity: 2.15,
+  castShadows: true,
+  shadowBias: 0.18,
+  shadowResolution: 2048
 });
-light.setEulerAngles(35, 25, 0);
+light.setEulerAngles(48, -32, 0);
 app.root.addChild(light);
 
 const ARENA_LEFT = -7.4;
@@ -77,46 +80,43 @@ function primitive(parent, name, type, pos, scale, mat) {
 }
 
 function buildHumanVisual() {
-  const root = new pc.Entity('Human');
-  app.root.addChild(root);
-  const torso = primitive(root, 'Torso', 'box', [0, 1.15, 0], [0.68, 1.2, 0.28], MAT.human);
-  const head = primitive(root, 'Head', 'sphere', [0, 2.12, 0], [0.62, 0.62, 0.32], MAT.humanSkin);
-  const leftArm = primitive(root, 'LeftArm', 'box', [-0.5, 1.2, 0.02], [0.24, 1.05, 0.23], MAT.humanSkin);
-  const rightArm = primitive(root, 'RightArm', 'box', [0.5, 1.2, 0.04], [0.24, 1.05, 0.23], MAT.humanSkin);
-  const leftLeg = primitive(root, 'LeftLeg', 'box', [-0.22, 0.15, 0], [0.28, 1.05, 0.25], MAT.humanDark);
-  const rightLeg = primitive(root, 'RightLeg', 'box', [0.22, 0.15, 0.02], [0.28, 1.05, 0.25], MAT.humanDark);
-  return { root, torso, head, leftArm, rightArm, leftLeg, rightLeg };
+  return createVisualHost(app, 'human');
 }
 
 function buildMonsterVisual() {
-  const root = new pc.Entity('Monster');
-  app.root.addChild(root);
-  const torso = primitive(root, 'Torso', 'box', [0, 0.82, 0], [1.75, 0.9, 0.42], MAT.monster);
-  const head = primitive(root, 'Head', 'sphere', [1.08, 1.05, 0], [0.78, 0.72, 0.45], MAT.monsterDark);
-  const jaw = primitive(root, 'Jaw', 'box', [1.46, 0.88, 0.02], [0.55, 0.28, 0.32], MAT.monsterDark);
-  const horn = primitive(root, 'Horn', 'cone', [1.12, 1.58, 0], [0.2, 0.56, 0.22], MAT.monsterHorn);
-  horn.setLocalEulerAngles(0, 0, -24);
-  const fl = primitive(root, 'FrontLeftLeg', 'box', [0.62, 0.02, 0.04], [0.28, 0.9, 0.3], MAT.monsterDark);
-  const fr = primitive(root, 'FrontRightLeg', 'box', [0.28, 0.02, -0.05], [0.28, 0.9, 0.3], MAT.monsterDark);
-  const rl = primitive(root, 'RearLeftLeg', 'box', [-0.62, 0.02, 0.04], [0.3, 0.9, 0.3], MAT.monsterDark);
-  const rr = primitive(root, 'RearRightLeg', 'box', [-0.28, 0.02, -0.05], [0.3, 0.9, 0.3], MAT.monsterDark);
-  const tail = primitive(root, 'Tail', 'box', [-1.16, 1.0, 0], [0.78, 0.18, 0.2], MAT.monster);
-  tail.setLocalEulerAngles(0, 0, -18);
-  return { root, torso, head, jaw, horn, fl, fr, rl, rr, tail };
+  return createVisualHost(app, 'monster');
 }
 
 function buildArena() {
   const ground = new pc.Entity('Ground');
   ground.addComponent('render', { type: 'box' });
-  ground.setPosition(0, GROUND_Y - 0.34, -0.2);
-  ground.setLocalScale(16, 0.6, 0.6);
+  ground.setPosition(0, GROUND_Y - 0.26, -0.45);
+  ground.setLocalScale(16.4, 0.46, 5.8);
   ground.render.material = MAT.ground;
+  ground.render.castShadows = false;
+  ground.render.receiveShadows = true;
   app.root.addChild(ground);
 
-  primitive(app.root, 'CenterLine', 'box', [0, GROUND_Y - 0.02, -0.1], [0.035, 0.06, 0.12], MAT.accent);
-  primitive(app.root, 'LeftWall', 'box', [ARENA_LEFT - 0.12, 0.2, -0.4], [0.16, 4.2, 0.3], MAT.line);
-  primitive(app.root, 'RightWall', 'box', [ARENA_RIGHT + 0.12, 0.2, -0.4], [0.16, 4.2, 0.3], MAT.line);
+  // Depth layers keep the arena readable while the playable plane remains 2D.
+  primitive(app.root, 'RearPlatform', 'box', [0, GROUND_Y + 0.22, -2.65], [16.2, 0.32, 0.42], MAT.line);
+  primitive(app.root, 'ArenaLip', 'box', [0, GROUND_Y - 0.02, 1.55], [16.2, 0.09, 0.22], MAT.accent);
+  primitive(app.root, 'LeftPillar', 'box', [ARENA_LEFT - 0.2, 0.28, -1.55], [0.28, 4.15, 0.55], MAT.line);
+  primitive(app.root, 'RightPillar', 'box', [ARENA_RIGHT + 0.2, 0.28, -1.55], [0.28, 4.15, 0.55], MAT.line);
+
+  // Subtle stage stones: scenery only, never combat colliders.
+  for (const [x, z, sx, sy] of [
+    [-6.0, -1.7, 0.62, 0.22],
+    [-4.7, -1.9, 0.34, 0.15],
+    [5.6, -1.85, 0.52, 0.19],
+    [6.4, -1.65, 0.28, 0.12]
+  ]) {
+    const stone = primitive(app.root, 'StageStone', 'sphere', [x, GROUND_Y + sy * 0.25, z], [sx, sy, 0.42], MAT.line);
+    stone.render.castShadows = true;
+    stone.render.receiveShadows = true;
+  }
 }
+
+console.info('[visual-assets] manifest', assetSummary());
 
 buildArena();
 
@@ -303,42 +303,11 @@ class Combatant {
 
   syncVisual(time) {
     const down = this.state.posture === 'DOWN' || this.state.posture === 'UNCONSCIOUS';
-    const gettingUp = this.state.posture === 'GETTING_UP';
-    const lean = (1 - this.state.balance) * (this.kind === 'human' ? 22 : 13) * -this.facing;
-    const downAngle = down ? 78 * -this.facing : gettingUp ? 35 * -this.facing : lean;
-    const y = GROUND_Y + (down ? 0.18 : this.kind === 'human' ? 0.95 : 0.72);
+    const y = GROUND_Y + (down ? 0.05 : 0.08);
 
     this.visual.root.setPosition(this.x, y, 0);
-    this.visual.root.setEulerAngles(0, this.facing < 0 ? 180 : 0, downAngle);
-
-    if (this.kind === 'human') {
-      const pulse = Math.sin(time * 7) * 0.02 * (0.3 + this.state.breathing);
-      this.visual.torso.setLocalScale(0.68 + pulse, 1.2 + pulse, 0.28);
-      this.visual.rightArm.setLocalPosition(0.5, 1.2, 0.04);
-      this.visual.rightArm.setLocalEulerAngles(0, 0, 0);
-      this.visual.rightLeg.setLocalEulerAngles(0, 0, 0);
-      if (this.state.posture === 'GUARD') {
-        this.visual.rightArm.setLocalPosition(0.42, 1.52, 0.04);
-        this.visual.rightArm.setLocalEulerAngles(0, 0, -34);
-      }
-      if (this.action?.name === 'PUNCH') {
-        const phase = Math.sin(Math.min(1, this.action.time / this.action.duration) * Math.PI);
-        this.visual.rightArm.setLocalPosition(0.5 + phase * 0.62, 1.34, 0.04);
-        this.visual.rightArm.setLocalEulerAngles(0, 0, -72 * phase);
-      }
-      if (this.action?.name === 'LOW KICK') {
-        const phase = Math.sin(Math.min(1, this.action.time / this.action.duration) * Math.PI);
-        this.visual.rightLeg.setLocalEulerAngles(0, 0, -58 * phase);
-      }
-    } else {
-      const breath = Math.sin(time * 5) * 0.025 * (0.4 + this.state.breathing);
-      this.visual.torso.setLocalScale(1.75 + breath, 0.9 + breath, 0.42);
-      if (this.action?.name === 'CHARGE') {
-        this.visual.root.rotateLocal(0, 0, -5);
-      }
-      const weakFront = this.state.bodyParts.FRONT_LEFT_LEG?.function ?? 1;
-      this.visual.fl.setLocalEulerAngles(0, 0, (1 - weakFront) * 26);
-    }
+    this.visual.root.setEulerAngles(0, this.facing < 0 ? 180 : 0, 0);
+    updateVisualMotion(this.visual, this, time);
   }
 }
 
