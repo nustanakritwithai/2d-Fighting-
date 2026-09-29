@@ -1,3 +1,5 @@
+import * as pc from 'playcanvas';
+
 export const VISUAL_ASSETS = {
   human: {
     id: 'quaternius-modular-punk',
@@ -38,10 +40,31 @@ export function createVisualHost(app, kind) {
   root.addChild(modelMotion);
   app.root.addChild(root);
 
+  const placeholder = new pc.Entity(kind === 'human' ? 'HumanLoadingSilhouette' : 'MonsterLoadingSilhouette');
+  placeholder.addComponent('render', { type: 'box' });
+  placeholder.setLocalPosition(0, kind === 'human' ? 0.9 : 0.72, 0);
+  placeholder.setLocalScale(
+    kind === 'human' ? 0.48 : 0.9,
+    kind === 'human' ? 1.75 : 1.25,
+    0.42
+  );
+  const placeholderMaterial = new pc.StandardMaterial();
+  placeholderMaterial.diffuse = kind === 'human'
+    ? new pc.Color(0.18, 0.36, 0.48)
+    : new pc.Color(0.42, 0.15, 0.12);
+  placeholderMaterial.emissive = kind === 'human'
+    ? new pc.Color(0.025, 0.06, 0.08)
+    : new pc.Color(0.08, 0.02, 0.015);
+  placeholderMaterial.gloss = 0.08;
+  placeholderMaterial.update();
+  placeholder.render.material = placeholderMaterial;
+  modelMotion.addChild(placeholder);
+
   const handle = {
     kind,
     root,
     modelMotion,
+    placeholder,
     model: null,
     ready: false,
     failed: false,
@@ -66,6 +89,7 @@ export function createVisualHost(app, kind) {
     model.setLocalEulerAngles(0, config.yaw, 0);
     tuneRenderHierarchy(model);
     modelMotion.addChild(model);
+    placeholder.enabled = false;
     handle.model = model;
     handle.ready = true;
     console.info('[visual-assets] loaded', kind, config.title);
@@ -81,6 +105,8 @@ export function updateVisualMotion(handle, actor, time) {
   let y = 0;
   let zTilt = 0;
   let scale = 1;
+
+  zTilt += (1 - actor.state.balance) * (handle.kind === 'human' ? 10 : 7) * -actor.facing;
 
   const down = actor.state.posture === 'DOWN' || actor.state.posture === 'UNCONSCIOUS';
   const gettingUp = actor.state.posture === 'GETTING_UP';
