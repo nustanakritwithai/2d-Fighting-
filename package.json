@@ -1,0 +1,10 @@
+{
+  "name": "2d-fighting-physical-combat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/combat.js && node --check src/main.js"
+  }
+}
