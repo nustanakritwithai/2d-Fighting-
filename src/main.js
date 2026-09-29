@@ -9,6 +9,7 @@ import {
   weakestPart
 } from './combat.js';
 import { createVisualHost, updateVisualMotion, assetSummary } from './model-assets.js';
+import { buildStageDressing, stageAssetSummary } from './stage-assets.js';
 
 const canvas = document.getElementById('application');
 const app = new pc.Application(canvas, {
@@ -40,6 +41,26 @@ light.addComponent('light', {
 });
 light.setEulerAngles(48, -32, 0);
 app.root.addChild(light);
+
+const fillLight = new pc.Entity('Cool Fill');
+fillLight.addComponent('light', {
+  type: 'directional',
+  color: new pc.Color(0.38, 0.56, 0.84),
+  intensity: 0.72,
+  castShadows: false
+});
+fillLight.setEulerAngles(24, 142, 0);
+app.root.addChild(fillLight);
+
+const rimLight = new pc.Entity('Warm Rim');
+rimLight.addComponent('light', {
+  type: 'directional',
+  color: new pc.Color(1, 0.42, 0.18),
+  intensity: 0.48,
+  castShadows: false
+});
+rimLight.setEulerAngles(18, -138, 0);
+app.root.addChild(rimLight);
 
 const ARENA_LEFT = -7.4;
 const ARENA_RIGHT = 7.4;
@@ -103,20 +124,12 @@ function buildArena() {
   primitive(app.root, 'LeftPillar', 'box', [ARENA_LEFT - 0.2, 0.28, -1.55], [0.28, 4.15, 0.55], MAT.line);
   primitive(app.root, 'RightPillar', 'box', [ARENA_RIGHT + 0.2, 0.28, -1.55], [0.28, 4.15, 0.55], MAT.line);
 
-  // Subtle stage stones: scenery only, never combat colliders.
-  for (const [x, z, sx, sy] of [
-    [-6.0, -1.7, 0.62, 0.22],
-    [-4.7, -1.9, 0.34, 0.15],
-    [5.6, -1.85, 0.52, 0.19],
-    [6.4, -1.65, 0.28, 0.12]
-  ]) {
-    const stone = primitive(app.root, 'StageStone', 'sphere', [x, GROUND_Y + sy * 0.25, z], [sx, sy, 0.42], MAT.line);
-    stone.render.castShadows = true;
-    stone.render.receiveShadows = true;
-  }
+  // Real low-poly CC0 props sit outside the combat collision plane.
+  buildStageDressing(app, GROUND_Y);
 }
 
 console.info('[visual-assets] manifest', assetSummary());
+console.info('[stage-assets] manifest', stageAssetSummary());
 
 buildArena();
 
